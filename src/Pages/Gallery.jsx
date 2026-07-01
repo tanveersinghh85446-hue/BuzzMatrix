@@ -24,7 +24,7 @@ const images = [
     title: "Corporate Stage",
     category: "Corporate",
   },
-  { src: "IMG4.AVIF", title: "Wedding Mandap", category: "Corporate" },
+  { src: "IMG6.AVIF", title: "Wedding Mandap", category: "Corporate" },
   { src: "IMG7.AVIF", title: "Wedding Mandap", category: "Wedding" },
   { src: "IMG8.AVIF", title: "Wedding Mandap", category: "Corporate" },
   { src: "IMG9.AVIF", title: "Wedding Mandap", category: "Wedding" },
