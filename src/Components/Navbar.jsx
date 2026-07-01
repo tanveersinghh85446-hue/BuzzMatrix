@@ -19,28 +19,33 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-orange-400 shadow-md sticky top-0 z-50 px-20">
+    <nav className="bg-orange-400 shadow-md sticky top-0 z-50 px-4 sm:px-6 lg:px-10 xl:px-20">
       <hr className="text-black" />
       <div className="container-custom">
-        <div className="flex justify-between items-center py-4">
+        <div className="flex justify-between items-center py-3 sm:py-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-15 h-15 rounded-full flex items-center justify-center">
-              <img className="bg-white rounded-full h-12 w-12" src="Logo.AVIF" alt="logo" />
+          <Link to="/" className="flex items-center space-x-2 shrink-0">
+            <div className="w-12 h-12 sm:w-15 sm:h-15 rounded-full flex items-center justify-center">
+              <img
+                className="bg-white rounded-full h-10 w-10 sm:h-12 sm:w-12"
+                src="Logo.AVIF"
+                alt="logo"
+              />
             </div>
             <div className="hidden sm:block">
-              {/* <h1 className="text-xl font-bold text-[#14356B]"></h1> */}
-              <p className="text-lg font-semibold text-black ">Buzz. Matrix. India.</p>
+              <p className="text-base md:text-lg font-semibold text-black">
+                Buzz. Matrix. India.
+              </p>
             </div>
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-3 xl:space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className="text-sm font-bold text-white hover:text-black transition-colors duration-300"
+                className="text-xs xl:text-sm font-bold text-white hover:text-black transition-colors duration-300 whitespace-nowrap"
               >
                 {link.name}
               </Link>
@@ -48,14 +53,18 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <button onClick={toggleMenu} className="lg:hidden text-[#14356B]">
+          <button
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+            className="lg:hidden text-white"
+          >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="lg:hidden bg-white border-t border-gray-200 py-4">
+          <div className="lg:hidden bg-white border-t border-gray-200 py-4 px-2">
             <div className="flex flex-col space-y-4">
               {navLinks.map((link) => (
                 <Link
@@ -67,7 +76,6 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              
             </div>
           </div>
         )}
