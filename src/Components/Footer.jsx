@@ -136,7 +136,7 @@ export default function Footer() {
         <div className="flex flex-col lg:flex-row justify-between items-start gap-8">
           <div className="w-full lg:max-w-55 lg:shrink-0">
             <img
-              className="h-20 w-20 object-contain mb-4 bg-white rounded-full"
+              className="h-30 w-30 object-contain mb-4"
               src="Logo.AVIF"
               sizes="175px"
               alt="Logo"
@@ -215,7 +215,7 @@ export default function Footer() {
                   ease: "easeInOut",
                 }}
               >
-                <Link to="contact">
+                <Link to="/contact">
                   <button className="w-full sm:w-auto px-6 py-2 border-2 border-white rounded-lg font-semibold text-sm hover:bg-white hover:text-blue-600 transition-all duration-300">
                     Contact Now →
                   </button>
@@ -232,7 +232,7 @@ export default function Footer() {
               onClick={() => setShowMap(true)}
               loading="lazy"
               decoding="async"
-              className="w-full lg:w-45 h-45 rounded-full shadow-lg opacity-90 hover:opacity-100 transition duration-300 cursor-pointer bg-white"
+              className="w-full lg:w-45  shadow-lg opacity-90 hover:opacity-100 transition duration-300 cursor-pointer bg-white"
             />
           </div>
 
@@ -247,7 +247,7 @@ export default function Footer() {
               <img
                 src="Logo.AVIF"
                 alt="Map Full View"
-                className="max-w-[90%] max-h-[90%] rounded-lg shadow-2xl bg-white"
+                className="max-w-[90%] max-h-[90%]"
               />
             </div>
           )}

@@ -11,12 +11,13 @@ import EventsShedule from "./Pages/EventsShedule";
 import Visitors from "./Pages/Visitors";
 import Footer from "./Components/Footer";
 import TopHeader from "./Components/TopHeader";
-
+import Header from "./Components/Header"
 function App() {
   return (
     <Router>
       <TopHeader/>
       <Navbar />
+      <Header/>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/contact" element={<Contact />} />
@@ -26,6 +27,7 @@ function App() {
         <Route path="/sponsors" element={<Sponsors />} />
         <Route path="/events-shedule" element={<EventsShedule />} />
         <Route path="/visitors" element={<Visitors />} />
+        
       </Routes>
       <Footer/>
     </Router>

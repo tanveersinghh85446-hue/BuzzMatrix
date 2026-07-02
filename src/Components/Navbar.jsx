@@ -25,9 +25,9 @@ const Navbar = () => {
         <div className="flex justify-between items-center py-3 sm:py-4">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 shrink-0">
-            <div className="w-12 h-12 sm:w-15 sm:h-15 rounded-full flex items-center justify-center">
+            <div className="  flex items-center justify-center">
               <img
-                className="bg-white rounded-full h-10 w-10 sm:h-12 sm:w-12"
+                className="h-10 w-10 sm:h-20 sm:w-30"
                 src="Logo.AVIF"
                 alt="logo"
               />

@@ -1,29 +1,13 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const images = [
-  {
-    src: "AVIF.AVIF",
-    title: "Auto Expo Stand",
-    category: "Auto Expo",
-  },
-  {
-    src: "IMG1.AVIF",
-    title: "Auto Expo Stand 2",
-    category: "Auto Expo",
-  },
+  { src: "AVIF.AVIF", title: "Auto Expo Stand", category: "Auto Expo" },
+  { src: "IMG1.AVIF", title: "Auto Expo Stand 2", category: "Auto Expo" },
   { src: "IMG2.AVIF", title: "Wedding Setup", category: "Wedding" },
   { src: "IMG3.AVIF", title: "Wedding Mandap", category: "Wedding" },
-  {
-    src: "IMG4.AVIF",
-    title: "Corporate Conference",
-    category: "Corporate",
-  },
-  {
-    src: "IMG5.AVIF",
-    title: "Corporate Stage",
-    category: "Corporate",
-  },
+  { src: "IMG4.AVIF", title: "Corporate Conference", category: "Corporate" },
+  { src: "IMG5.AVIF", title: "Corporate Stage", category: "Corporate" },
   { src: "IMG6.AVIF", title: "Wedding Mandap", category: "Corporate" },
   { src: "IMG7.AVIF", title: "Wedding Mandap", category: "Wedding" },
   { src: "IMG8.AVIF", title: "Wedding Mandap", category: "Corporate" },
@@ -59,6 +43,7 @@ const images = [
 const Gallery = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedImage, setSelectedImage] = useState(null);
+  const [direction, setDirection] = useState(0); // -1 = prev, 1 = next, for slide animation
 
   const categories = useMemo(() => {
     const unique = [...new Set(images.map((img) => img.category))];
@@ -70,22 +55,60 @@ const Gallery = () => {
     return images.filter((img) => img.category === activeCategory);
   }, [activeCategory]);
 
-  const openLightbox = (img) => setSelectedImage(img);
+  const openLightbox = (img) => {
+    setDirection(0);
+    setSelectedImage(img);
+  };
   const closeLightbox = () => setSelectedImage(null);
 
-  const goNext = (e) => {
-    e.stopPropagation();
-    const idx = filteredImages.findIndex((i) => i.src === selectedImage.src);
-    const next = filteredImages[(idx + 1) % filteredImages.length];
-    setSelectedImage(next);
-  };
+  const goNext = useCallback(
+    (e) => {
+      e?.stopPropagation();
+      setDirection(1);
+      const idx = filteredImages.findIndex((i) => i.src === selectedImage.src);
+      setSelectedImage(filteredImages[(idx + 1) % filteredImages.length]);
+    },
+    [filteredImages, selectedImage],
+  );
 
-  const goPrev = (e) => {
-    e.stopPropagation();
-    const idx = filteredImages.findIndex((i) => i.src === selectedImage.src);
-    const prev =
-      filteredImages[(idx - 1 + filteredImages.length) % filteredImages.length];
-    setSelectedImage(prev);
+  const goPrev = useCallback(
+    (e) => {
+      e?.stopPropagation();
+      setDirection(-1);
+      const idx = filteredImages.findIndex((i) => i.src === selectedImage.src);
+      setSelectedImage(
+        filteredImages[
+          (idx - 1 + filteredImages.length) % filteredImages.length
+        ],
+      );
+    },
+    [filteredImages, selectedImage],
+  );
+
+  // ---------- keyboard navigation: Esc to close, arrows to move ----------
+  useEffect(() => {
+    if (!selectedImage) return;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowRight") goNext();
+      if (e.key === "ArrowLeft") goPrev();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [selectedImage, goNext, goPrev]);
+
+  const slideVariants = {
+    enter: (dir) => ({
+      opacity: 0,
+      x: dir === 0 ? 0 : dir > 0 ? 60 : -60,
+      scale: dir === 0 ? 0.92 : 1,
+    }),
+    center: { opacity: 1, x: 0, scale: 1 },
+    exit: (dir) => ({
+      opacity: 0,
+      x: dir > 0 ? -60 : dir < 0 ? 60 : 0,
+      scale: 1,
+    }),
   };
 
   return (
@@ -93,7 +116,8 @@ const Gallery = () => {
       {/* Heading */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
         transition={{ duration: 0.5 }}
         className="text-center mb-10"
       >
@@ -108,42 +132,55 @@ const Gallery = () => {
         </p>
       </motion.div>
 
-      {/* Filter buttons */}
+      {/* Filter buttons — animated active pill indicator */}
       <div className="flex flex-wrap justify-center gap-2 mb-10">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors duration-300 ${
+            className={`relative px-4 py-1.5 rounded-full text-sm font-medium border transition-colors duration-300 ${
               activeCategory === cat
-                ? "bg-neutral-900 text-white border-neutral-900"
+                ? "text-white border-neutral-900"
                 : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400"
             }`}
           >
-            {cat}
+            {activeCategory === cat && (
+              <motion.span
+                layoutId="activePill"
+                className="absolute inset-0 rounded-full bg-neutral-900"
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              />
+            )}
+            <span className="relative z-10">{cat}</span>
           </button>
         ))}
       </div>
 
-      {/* Image grid */}
+      {/* Image grid — staggered entrance + layout animation on filter change */}
       <motion.div
         layout
         className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"
       >
         <AnimatePresence mode="popLayout">
-          {filteredImages.map((img) => (
+          {filteredImages.map((img, i) => (
             <motion.div
               key={img.src}
               layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
+              layoutId={`card-${img.src}`}
+              initial={{ opacity: 0, scale: 0.9, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
+              transition={{
+                duration: 0.35,
+                ease: "easeOut",
+                delay: Math.min(i, 8) * 0.04,
+              }}
               whileHover={{ scale: 1.03 }}
               onClick={() => openLightbox(img)}
               className="relative aspect-square overflow-hidden rounded-xl cursor-pointer group"
             >
-              <img
+              <motion.img
+                layoutId={`img-${img.src}`}
                 src={img.src}
                 alt={img.title}
                 loading="lazy"
@@ -170,21 +207,34 @@ const Gallery = () => {
             className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center px-4"
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.25 }}
+              layoutId={`card-${selectedImage.src}`}
               onClick={(e) => e.stopPropagation()}
               className="relative max-w-4xl w-full"
             >
-              <img
-                src={selectedImage.src}
-                alt={selectedImage.title}
-                className="w-full max-h-[80vh] object-contain rounded-lg"
-              />
-              <p className="text-white text-center mt-4 text-sm">
+              <AnimatePresence mode="wait" custom={direction}>
+                <motion.img
+                  key={selectedImage.src}
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  src={selectedImage.src}
+                  alt={selectedImage.title}
+                  className="w-full max-h-[80vh] object-contain rounded-lg"
+                />
+              </AnimatePresence>
+
+              <motion.p
+                key={`caption-${selectedImage.src}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="text-white text-center mt-4 text-sm"
+              >
                 {selectedImage.title}
-              </p>
+              </motion.p>
 
               {/* Close button */}
               <button
@@ -199,14 +249,14 @@ const Gallery = () => {
               <button
                 onClick={goPrev}
                 aria-label="Previous image"
-                className="absolute left-2 top-1/2 -translate-y-1/2 text-white text-3xl w-10 h-10 flex items-center justify-center rounded-full bg-black/30 hover:bg-black/50 transition-colors"
+                className="absolute left-2 top-1/2 -translate-y-1/2 text-white text-3xl w-10 h-10 flex items-center justify-center rounded-full bg-black/30 hover:bg-black/50 hover:scale-110 transition-all"
               >
                 &#8249;
               </button>
               <button
                 onClick={goNext}
                 aria-label="Next image"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-white text-3xl w-10 h-10 flex items-center justify-center rounded-full bg-black/30 hover:bg-black/50 transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-white text-3xl w-10 h-10 flex items-center justify-center rounded-full bg-black/30 hover:bg-black/50 hover:scale-110 transition-all"
               >
                 &#8250;
               </button>
